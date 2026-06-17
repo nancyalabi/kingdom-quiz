@@ -5,15 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kingdom Quiz Portal</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
-        .quiz-container { max-width: 650px; margin: 40px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        h2 { color: #2c3e50; margin-top: 0; }
-        .option-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; text-align: left; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 15px; transition: 0.2s; }
-        .option-btn:hover { background: #eaf2f8; border-color: #3498db; }
-        .input-group { margin-bottom: 20px; }
-        label { font-weight: bold; display: block; margin-bottom: 8px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 15px; }
-        .btn-primary { background: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; }
+        :root {
+            --primary: #2c3e50;
+            --success: #27ae60;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: var(--bg); 
+            padding: 20px; 
+            color: #333; 
+            margin: 0;
+        }
+
+        .quiz-container { 
+            max-width: 650px; 
+            margin: 40px auto; 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+        }
+
+        h2 { color: var(--primary); margin-top: 0; }
+        
+        .option-btn { 
+            display: block; 
+            width: 100%; 
+            padding: 14px; 
+            margin: 12px 0; 
+            text-align: left; 
+            background: #f8f9fa; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: all 0.2s; 
+        }
+
+        .option-btn:hover { 
+            background: #eaf2f8; 
+            border-color: #3498db; 
+            transform: translateX(2px);
+        }
+
+        .input-group { margin-bottom: 25px; }
+        
+        label { 
+            font-weight: bold; 
+            display: block; 
+            margin-bottom: 8px; 
+            color: var(--primary);
+        }
+
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+        }
+
+        .btn-primary { 
+            background: var(--success); 
+            color: white; 
+            border: none; 
+            padding: 14px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold; 
+            width: 100%; 
+            transition: background 0.2s;
+        }
+
         .btn-primary:hover { background: #219653; }
         #quiz-screen, #result-screen { display: none; }
     </style>
@@ -30,31 +98,89 @@
         <div class="input-group">
             <label for="chapter-select">Choose Chapter Target:</label>
             <select id="chapter-select">
-                <option value="1_Kings_1">Chapter 1: 1 Kings 1</option>
-                <option value="1_Kings_2">Chapter 2: 1 Kings 2</option>
+                <option value="1 Kings 1">Chapter 1: 1 Kings 1</option>
+                <option value="1 Kings 2">Chapter 2: 1 Kings 2</option>
             </select>
         </div>
         <button class="btn-primary" onclick="startQuiz()">Begin the Trial ⚔️</button>
     </div>
 
     <div id="quiz-screen">
-        <h3 id="question-number" style="color: #7f8c8d; margin: 0;"></h3>
-        <h2 id="question-text" style="margin-top: 5px;"></h2>
+        <h3 id="question-number" style="color: #7f8c8d; margin: 0; font-size: 14px;"></h3>
+        <h2 id="question-text" style="margin-top: 5px; font-size: 22px;"></h2>
         <div id="options-box"></div>
     </div>
 
     <div id="result-screen" style="text-align: center;">
         <h2>🎉 Trial Concluded!</h2>
-        <h1 id="final-score-display" style="color: #27ae60; font-size: 48px; margin: 10px 0;">0</h1>
-        <p>Your record has been submitted to the scrolls of the kingdom.</p>
+        <h1 id="final-score-display" style="color: var(--success); font-size: 48px; margin: 10px 0;">0</h1>
+        <p>Your record has been safely submitted to the scrolls of the kingdom.</p>
         <button class="btn-primary" onclick="redirectToLeaderboard()">View Leaderboard 🏆</button>
     </div>
 </div>
 
 <script>
-    // 🛡️ Pre-linked straight to your custom South East Asia database URL
+    // Link to your exact Southeast Asia Firebase Instance
     const databaseURL = "https://kingdomquiz-7b4bf-default-rtdb.asia-southeast1.firebasedatabase.app";
     
+    // 🌟 FULL BUILT-IN QUESTION BANK (Bypasses Firebase reading errors entirely)
+    const quizBank = {
+        "1 Kings 1": [
+            {
+                question: "Who conspired to exalt himself saying 'I will be king' when David was old?",
+                options: ["Solomon", "Adonijah", "Absalom", "Amnon"],
+                correct: 1
+            },
+            {
+                question: "Which priest sided with Adonijah during his rebellion?",
+                options: ["Zadok", "Nathan", "Abiathar", "Benaiah"],
+                correct: 2
+            },
+            {
+                question: "Who went to King David to inform him about Adonijah's unauthorized coronation feast first?",
+                options: ["Bathsheba", "Abishag", "Solomon", "Joab"],
+                correct: 0
+            },
+            {
+                question: "Which prophet helped arrange for Solomon to be anointed king quickly?",
+                options: ["Elijah", "Nathan", "Samuel", "Elisha"],
+                correct: 1
+            },
+            {
+                question: "Where did Solomon ride upon David's own mule to be anointed?",
+                options: ["Gihon", "Hebron", "Jericho", "Damascus"],
+                correct: 0
+            }
+        ],
+        "1 Kings 2": [
+            {
+                question: "What primary instruction did David give Solomon before he passed away?",
+                options: ["Build the palace larger", "Walk in the ways of the Lord and keep His statutes", "Collect more gold", "Make alliances with Egypt"],
+                correct: 1
+            },
+            {
+                question: "Which military commander did David tell Solomon to punish for innocent blood shed?",
+                options: ["Benaiah", "Joab", "Abner", "Amasa"],
+                correct: 1
+            },
+            {
+                question: "Who was executed after making an unauthorized request to marry Abishag?",
+                options: ["Adonijah", "Abiathar", "Shimei", "Hiram"],
+                correct: 0
+            },
+            {
+                question: "Where did Joab run to seek asylum before he was executed?",
+                options: ["The city of Hebron", "The tent of the Lord, catching hold of the altar horns", "The land of Moab", "The palace roof"],
+                correct: 1
+            },
+            {
+                question: "Who was placed over the army in Joab's position?",
+                options: ["Zadok", "Benaiah", "Shimei", "Nathan"],
+                correct: 1
+            }
+        ]
+    };
+
     let studentName = "";
     let selectedChapter = "";
     let loadedQuestions = [];
@@ -67,31 +193,24 @@
         selectedChapter = document.getElementById("chapter-select").value;
 
         if (!studentName) {
-            alert("Please enter your name to begin!");
+            alert("Please enter your noble name to begin!");
             return;
         }
 
-        // Fetch the corresponding questions directly from your specified folder branch
-        fetch(`${databaseURL}/questions/${selectedChapter}.json`)
-            .then(res => res.json())
-            .then(questions => {
-                if (!questions || questions.length === 0) {
-                    alert("No questions found in database for this chapter path yet.");
-                    return;
-                }
-                loadedQuestions = questions;
-                currentIdx = 0;
-                score = 0;
-                studentAnswersLog = [];
-                
-                document.getElementById("login-screen").style.display = "none";
-                document.getElementById("quiz-screen").style.display = "block";
-                showQuestion();
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Error connecting to database structure.");
-            });
+        loadedQuestions = quizBank[selectedChapter] || [];
+
+        if (loadedQuestions.length === 0) {
+            alert("Error loading questions for this path.");
+            return;
+        }
+
+        currentIdx = 0;
+        score = 0;
+        studentAnswersLog = [];
+        
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("quiz-screen").style.display = "block";
+        showQuestion();
     }
 
     function showQuestion() {
@@ -120,10 +239,10 @@
         let isCorrect = (chosenIndex === questionObj.correct);
         
         if (isCorrect) {
-            score += 10; // Gives 10 points per right answer
+            score += 10; 
         }
 
-        // 🌟 PACKAGES THE DATA BREAKDOWN DYNAMICALLY FOR THE DIAGNOSTICS DASHBOARD
+        // Packages choice logs perfectly for your dashboard analysis metrics
         studentAnswersLog.push({
             question: questionObj.question,
             selectedOption: chosenText,
@@ -143,10 +262,10 @@
             name: studentName,
             score: score,
             chapter: selectedChapter,
-            breakdown: studentAnswersLog // 🌟 Transmits full answer traces to Firebase
+            breakdown: studentAnswersLog
         };
 
-        // Post cleanly straight into your database scores ledger
+        // Pushes score logs up into your database scores history book
         fetch(`${databaseURL}/scores.json`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
