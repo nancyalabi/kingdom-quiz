@@ -3,250 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kingdom Quiz - Teacher Performance Dashboard</title>
+    <title>Kingdom Quiz - Master Dashboard</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #34495e;
-            --accent: #3498db;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --bg: #f4f7f6;
-            --card-bg: #ffffff;
-            --text: #333333;
-        }
-
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: var(--bg); 
-            margin: 0; 
-            padding: 20px; 
-            color: var(--text); 
-        }
-
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #bdc3c7;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        h1 { 
-            color: var(--primary); 
-            margin: 0;
-            font-size: 28px;
-        }
-
-        .selector-box { 
-            background: var(--card-bg); 
-            padding: 15px 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-            margin-bottom: 25px; 
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        label {
-            font-weight: bold;
-            color: var(--secondary);
-        }
-
-        select { 
-            padding: 10px 15px; 
-            font-size: 16px; 
-            border-radius: 6px; 
-            border: 1px solid #ccc; 
-            width: 280px; 
-            outline: none;
-            cursor: pointer;
-            transition: border 0.2s;
-        }
-
-        select:focus {
-            border-color: var(--accent);
-        }
-
-        .grid { 
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 25px; 
-        }
-
-        @media (max-width: 900px) {
-            .grid { grid-template-columns: 1fr; }
-        }
-
-        .panel { 
-            background: var(--card-bg); 
-            padding: 25px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-            height: 650px; 
-            overflow-y: auto; 
-            box-sizing: border-box;
-        }
-
-        .panel-title {
-            margin-top: 0;
-            color: var(--primary);
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .panel-subtitle {
-            color: #7f8c8d; 
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .student-row { 
-            padding: 12px 15px; 
-            border-bottom: 1px solid #f0f0f0; 
-            cursor: pointer; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            transition: all 0.2s; 
-            border-radius: 4px;
-            margin-bottom: 5px;
-        }
-
-        .student-row:hover { 
-            background-color: #eaf2f8; 
-            transform: translateX(3px);
-        }
-
-        .badge { 
-            background: var(--accent); 
-            color: white; 
-            padding: 4px 10px; 
-            border-radius: 12px; 
-            font-size: 13px; 
-            font-weight: bold; 
-        }
-
-        .mistake-item { 
-            padding: 15px; 
-            margin-bottom: 15px; 
-            border-left: 5px solid var(--danger); 
-            background: #fdf2f2; 
-            border-radius: 0 6px 6px 0; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-
-        .mistake-percentage {
-            color: var(--danger);
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .report-header { 
-            background: var(--primary); 
-            color: white; 
-            padding: 15px; 
-            margin: -25px -25px 20px -25px; 
-            border-radius: 8px 8px 0 0; 
-        }
-
-        .back-btn {
-            cursor: pointer; 
-            background: white; 
-            border: none; 
-            padding: 5px 12px; 
-            border-radius: 4px; 
-            font-weight: bold;
-            color: var(--primary);
-            transition: background 0.2s;
-        }
-
-        .back-btn:hover {
-            background: #f4f7f6;
-        }
-
-        .question-review { 
-            margin-bottom: 20px; 
-            padding-bottom: 15px; 
-            border-bottom: 1px solid #f0f0f0; 
-        }
-
-        .question-text {
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .status-indicator {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
-
-        .status-indicator.correct { background: #d4edda; color: var(--success); }
-        .status-indicator.wrong { background: #f8d7da; color: var(--danger); }
-
-        .answer-detail {
-            font-size: 14px;
-            color: #555;
-            margin-left: 5px;
-        }
-
-        .empty-state {
-            color: #95a5a6;
-            text-align: center;
-            margin-top: 100px;
-            font-style: italic;
-        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .selector-box { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        select { padding: 10px; font-size: 16px; border-radius: 4px; border: 1px solid #ccc; width: 300px; }
+        .grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; }
+        @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+        .panel { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); height: 550px; overflow-y: auto; }
+        .student-row { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fafafa; margin-bottom: 5px; border-radius: 4px; }
+        .student-row:hover { background-color: #eaf2f8; }
+        .badge { background: #3498db; color: white; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; }
+        .mistake-item { padding: 12px; margin-bottom: 12px; border-left: 4px solid #e74c3c; background: #fdf2f2; }
+        .report-header { background: #2c3e50; color: white; padding: 15px; margin: -20px -20px 15px -20px; border-radius: 8px 8px 0 0; }
+        .back-btn { cursor: pointer; padding: 4px 10px; font-weight: bold; margin-bottom: 5px; }
+        .question-review { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .status { font-weight: bold; font-size: 12px; padding: 2px 6px; border-radius: 3px; display: inline-block; }
+        .status.ok { background: #d4edda; color: #155724; }
+        .status.bad { background: #f8d7da; color: #721c24; }
+        .empty-msg { color: #7f8c8d; text-align: center; margin-top: 80px; font-style: italic; }
+        .debug-bar { background: #ffeaa7; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 13px; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>🛡️ Kingdom Quiz: Teacher Insights Dashboard</h1>
-    </header>
+    <h2>🛡️ Kingdom Quiz: Teacher Diagnostics Control</h2>
     
+    <div id="debug-status" class="debug-bar"></div>
+
     <div class="selector-box">
-        <label for="chapter-select">Active Chapter Diagnostics:</label>
+        <label style="font-weight:bold; margin-right:10px;">Select Active Chapter:</label>
         <select id="chapter-select" onchange="loadAnalytics()">
-            <option value="">-- Select Chapter to Populate Analytics --</option>
-            <option value="1 Kings 1">Chapter 1: 1 Kings 1</option>
-            <option value="1 Kings 2">Chapter 2: 1 Kings 2</option>
+            <option value="">-- Choose Chapter --</option>
+            <option value="1 Kings 1">1 Kings 1</option>
+            <option value="1 Kings 2">1 Kings 2</option>
         </select>
     </div>
 
     <div class="grid">
-        <div class="panel" id="student-panel">
-            <h3 class="panel-title">👥 Student Performance Roster</h3>
-            <p class="panel-subtitle">Select a specific student below to view their exam submission file line-by-line.</p>
-            <div id="roster-list">
-                <div class="empty-state">Select a chapter above to pull classroom data tracks.</div>
-            </div>
+        <div class="panel" id="left-panel">
+            <h3>👥 Student Performance Roster</h3>
+            <div id="roster-list"><p class="empty-msg">Select a chapter from the menu above.</p></div>
         </div>
 
-        <div class="panel" id="stats-panel">
-            <h3 class="panel-title">📊 Common Mistakes (Item Analysis)</h3>
-            <p class="panel-subtitle">Quiz questions sorted dynamically by the highest mistake threshold across the class.</p>
-            <div id="mistakes-list">
-                <div class="empty-state">Select a chapter above to run item statistics.</div>
-            </div>
+        <div class="panel" id="right-panel">
+            <h3>📊 Question Mistake Metrics</h3>
+            <div id="mistakes-list"><p class="empty-msg">Select a chapter to run diagnostics.</p></div>
         </div>
     </div>
 </div>
@@ -254,29 +58,41 @@
 <script>
     const databaseURL = "https://kingdomquiz-7b4bf-default-rtdb.asia-southeast1.firebasedatabase.app"; 
     let classroomData = {};
-    let activeChapter = "";
 
     function loadAnalytics() {
-        activeChapter = document.getElementById("chapter-select").value;
-        if (!activeChapter) {
-            document.getElementById("roster-list").innerHTML = '<div class="empty-state">Select a chapter above to pull classroom data tracks.</div>';
-            document.getElementById("mistakes-list").innerHTML = '<div class="empty-state">Select a chapter above to run item statistics.</div>';
+        const targetChapter = document.getElementById("chapter-select").value;
+        const rosterList = document.getElementById("roster-list");
+        const mistakesList = document.getElementById("mistakes-list");
+        const debugBar = document.getElementById("debug-status");
+
+        if (!targetChapter) {
+            rosterList.innerHTML = '<p class="empty-msg">Select a chapter from the menu above.</p>';
+            mistakesList.innerHTML = '<p class="empty-msg">Select a chapter to run diagnostics.</p>';
+            debugBar.style.display = "none";
             return;
         }
+
+        rosterList.innerHTML = "<p class='empty-msg'>Connecting to Firebase scrolls...</p>";
 
         fetch(`${databaseURL}/scores.json`)
             .then(res => res.json())
             .then(data => {
                 classroomData = data || {};
-                processData(activeChapter);
+                
+                // Debug Helper: Show exactly what keys exist inside the database
+                const totalRecords = Object.keys(classroomData).length;
+                debugBar.innerHTML = `📡 Firebase Connection Successful. Found ${totalRecords} total entries inside your score root directory.`;
+                debugBar.style.display = "block";
+
+                processData(targetChapter);
             })
             .catch(err => {
-                console.error("Database Fetch Error:", err);
-                document.getElementById("roster-list").innerHTML = '<div class="empty-state" style="color:red;">Error connecting to Firebase Database. Check web connection!</div>';
+                console.error(err);
+                rosterList.innerHTML = `<p class='empty-msg' style='color:red;'>Failed to reach database. Check internet connection.</p>`;
             });
     }
 
-    function processData(chapter) {
+    function processData(targetChapter) {
         const rosterList = document.getElementById("roster-list");
         const mistakesList = document.getElementById("mistakes-list");
         
@@ -284,32 +100,47 @@
         mistakesList.innerHTML = "";
 
         let studentCount = 0;
-        let detailedSubmissionsCount = 0;
+        let detailedCount = 0;
         let questionStats = {}; 
+
+        // Standardize the picked chapter string (lowercase, remove spaces & underscores)
+        const cleanTarget = targetChapter.toLowerCase().replace(/[\s_]/g, "");
 
         for (let studentId in classroomData) {
             let record = classroomData[studentId];
-            
-            // Bulletproof checking logic that compares spaces or structural strings cleanly
-            if (record.chapter === chapter) {
+            if (!record) continue;
+
+            // Strict fallback checking: if the data is nested deeper, step into it safely
+            if (!record.chapter && typeof record === 'object') {
+                let keys = Object.keys(record);
+                if (keys.length > 0 && record[keys[0]].chapter) {
+                    record = record[keys[0]]; // Handle nested push format
+                }
+            }
+
+            // Standardize the stored database chapter string
+            let cleanRecordChapter = record.chapter ? record.chapter.toString().toLowerCase().replace(/[\s_]/g, "") : "";
+
+            // Dynamic Matching Logic: Checks if it matches or contains the phrase
+            if (cleanRecordChapter === cleanTarget || cleanRecordChapter.includes(cleanTarget) || cleanTarget.includes(cleanRecordChapter)) {
                 studentCount++;
                 
-                // 1. Append Student to Navigation Roster
+                // Append Student card
                 let row = document.createElement("div");
                 row.className = "student-row";
-                row.innerHTML = `<span>⚔️ <strong>${record.name || 'Anonymous Knight'}</strong></span> <span class="badge">${record.score} Pts</span>`;
+                row.innerHTML = `<span>⚔️ <strong>${record.name || 'Anonymous Knight'}</strong></span> <span class="badge">${record.score || 0} Pts</span>`;
                 row.onclick = () => showIndividualReport(record);
                 rosterList.appendChild(row);
 
-                // 2. Parse Question Metrics Index if breakdown data exists
-                if (record.breakdown) { 
-                    detailedSubmissionsCount++;
+                // Compile questions statistics
+                if (record.breakdown && Array.isArray(record.breakdown)) { 
+                    detailedCount++;
                     record.breakdown.forEach((item, index) => {
                         if (!questionStats[index]) {
                             questionStats[index] = { question: item.question, wrongCount: 0, total: 0 };
                         }
                         questionStats[index].total++;
-                        if (!item.isCorrect) {
+                        if (item.isCorrect === false || item.isCorrect === "false") {
                             questionStats[index].wrongCount++;
                         }
                     });
@@ -317,24 +148,24 @@
             }
         }
 
+        // Error Feedback directly inside the user screen
         if (studentCount === 0) {
-            rosterList.innerHTML = "<div class='empty-state'>No student submission data found matching this chapter format yet.</div>";
-            mistakesList.innerHTML = "<div class='empty-state'>No mistake analytics data available.</div>";
+            rosterList.innerHTML = `<div class='empty-state' style='color:#e74c3c; text-align:center; padding-top:40px;'>No entries found matching "${targetChapter}". <br><br><small style='color:#7f8c8d;'>This means no data rows under "/scores" match this specific spelling format.</small></div>`;
+            mistakesList.innerHTML = "<div class='empty-state'>No metrics available.</div>";
             return;
         }
 
-        // Show a smart fallback message if they are using older quiz data that lacked item traces
-        if (detailedSubmissionsCount === 0) {
-            mistakesList.innerHTML = "<div class='empty-state' style='padding: 20px; color:#7f8c8d;'>Scores found! However, these entries only recorded point totals. Real-time item analysis will generate as soon as submissions are made using your updated quiz code!</div>";
+        if (detailedCount === 0) {
+            mistakesList.innerHTML = "<div class='empty-msg'>Scores loaded! Answers details aren't attached to these past attempts. New attempts using your new quiz script will compute here dynamically.</div>";
             return;
         }
 
-        // 3. Compile and Rank Mistakes Sorted descending (highest failure threshold first)
+        // Rank Hardest Items
         let statsArray = Object.values(questionStats).filter(q => q.wrongCount > 0);
         statsArray.sort((a, b) => b.wrongCount - a.wrongCount);
 
         if (statsArray.length === 0) {
-            mistakesList.innerHTML = "<div class='empty-state' style='color:green; font-weight:bold;'>🎉 Perfect Scores! Your entire class cleared every question correctly!</div>";
+            mistakesList.innerHTML = "<div class='empty-msg' style='color:green; font-weight:bold;'>🎉 100% Precision! No recorded mistakes found for this cohort.</div>";
             return;
         }
 
@@ -342,48 +173,41 @@
             let pct = Math.round((q.wrongCount / q.total) * 100);
             let item = document.createElement("div");
             item.className = "mistake-item";
-            item.innerHTML = `
-                <span class="mistake-percentage">⚠️ Missed by ${pct}% of your class</span>
-                <span style="font-size: 13px; color: #7f8c8d; font-weight:bold;">Metrics: ${q.wrongCount} out of ${q.total} Knights failed this statement</span><br>
-                <p style="margin: 8px 0 0 0; font-size:14px; font-weight: 500; color:#2c3e50;">${q.question}</p>
-            `;
+            item.innerHTML = `<strong>⚠️ Missed by ${pct}% of class</strong> (${q.wrongCount}/${q.total} students)<br><span style="font-size:14px; color:#2c3e50;">${q.question}</span>`;
             mistakesList.appendChild(item);
         });
     }
 
     function showIndividualReport(record) {
-        let rosterPanel = document.getElementById("student-panel");
+        let rosterPanel = document.getElementById("left-panel");
         let html = `
             <div class="report-header">
-                <button class="back-btn" onclick="backToRoster()">⬅ Back to List</button>
-                <h3 style="margin: 10px 0 5px 0;">📋 Paper Review: ${record.name || 'Student'}</h3>
-                <span style="font-size:13px; opacity:0.9;">Performance Track Score: <strong>${record.score} Points</strong></span>
+                <button class="back-btn" onclick="backToRoster()">⬅ Back</button>
+                <h3 style="margin:5px 0 2px 0;">${record.name || 'Student'}</h3>
+                <span style="font-size:12px;">Total Score: <strong>${record.score || 0} Points</strong></span>
             </div>
         `;
 
-        if (record.breakdown) {
+        if (record.breakdown && Array.isArray(record.breakdown)) {
             record.breakdown.forEach((item, idx) => {
                 html += `
                     <div class="question-review">
-                        <span class="question-text">Q${idx + 1}: ${item.question}</span>
-                        <div>
-                            <span class="status-indicator ${item.isCorrect ? 'correct' : 'wrong'}">
-                                ${item.isCorrect ? '✅ Correct' : '❌ Incorrect'}
-                            </span>
-                            <span class="answer-detail">Selected: <em>"${item.selectedOption || 'N/A'}"</em></span>
-                        </div>
+                        <span style="font-size:13px; font-weight:600; color:#2c3e50;">Q${idx + 1}: ${item.question}</span><br>
+                        <span class="status ${item.isCorrect ? 'correct' : 'bad'}">${item.isCorrect ? '✅ Correct' : '❌ Missed'}</span>
+                        <small style="color:#555; margin-left:5px;">Picked: "${item.selectedOption || 'N/A'}"</small>
                     </div>
                 `;
             });
         } else {
-            html += "<div class='empty-state' style='margin-top:40px;'>This structural entry only possesses total point metrics without a response breakdown. Detailed logs will appear for future quiz completions!</div>";
+            html += "<p class='empty-msg'>This legacy entry does not have an attached wrong-answer logging array block.</p>";
         }
 
         rosterPanel.innerHTML = html;
     }
 
     function backToRoster() {
-        processData(activeChapter);
+        const targetChapter = document.getElementById("chapter-select").value;
+        processData(targetChapter);
     }
 </script>
 
