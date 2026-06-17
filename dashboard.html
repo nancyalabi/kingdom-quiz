@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kingdom Quiz - Teacher Performance Dashboard</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #333333;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg); 
+            margin: 0; 
+            padding: 20px; 
+            color: var(--text); 
+        }
+
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #bdc3c7;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 { 
+            color: var(--primary); 
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .selector-box { 
+            background: var(--card-bg); 
+            padding: 15px 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            margin-bottom: 25px; 
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        select { 
+            padding: 10px 15px; 
+            font-size: 16px; 
+            border-radius: 6px; 
+            border: 1px solid #ccc; 
+            width: 280px; 
+            outline: none;
+            cursor: pointer;
+            transition: border 0.2s;
+        }
+
+        select:focus {
+            border-color: var(--accent);
+        }
+
+        .grid { 
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 25px; 
+        }
+
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .panel { 
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            height: 650px; 
+            overflow-y: auto; 
+            box-sizing: border-box;
+        }
+
+        .panel-title {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-subtitle {
+            color: #7f8c8d; 
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* Student Roster Styles */
+        .student-row { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid #f0f0f0; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            transition: all 0.2s; 
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .student-row:hover { 
+            background-color: #eaf2f8; 
+            transform: translateX(3px);
+        }
+
+        .badge { 
+            background: var(--accent); 
+            color: white; 
+            padding: 4px 10px; 
+            border-radius: 12px; 
+            font-size: 13px; 
+            font-weight: bold; 
+        }
+
+        /* Stats Component Styles */
+        .mistake-item { 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-left: 5px solid var(--danger); 
+            background: #fdf2f2; 
+            border-radius: 0 6px 6px 0; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .mistake-percentage {
+            color: var(--danger);
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* Individual Submission Review Styles */
+        .report-header { 
+            background: var(--primary); 
+            color: white; 
+            padding: 15px; 
+            margin: -25px -25px 20px -25px; 
+            border-radius: 8px 8px 0 0; 
+        }
+
+        .back-btn {
+            cursor: pointer; 
+            background: white; 
+            border: none; 
+            padding: 5px 12px; 
+            border-radius: 4px; 
+            font-weight: bold;
+            color: var(--primary);
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #f4f7f6;
+        }
+
+        .question-review { 
+            margin-bottom: 20px; 
+            padding-bottom: 15px; 
+            border-bottom: 1px solid #f0f0f0; 
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .status-indicator.correct { background: #d4edda; color: var(--success); }
+        .status-indicator.wrong { background: #f8d7da; color: var(--danger); }
+
+        .answer-detail {
+            font-size: 14px;
+            color: #555;
+            margin-left: 5px;
+        }
+
+        .empty-state {
+            color: #95a5a6;
+            text-align: center;
+            margin-top: 100px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🛡️ Kingdom Quiz: Teacher Insights Dashboard</h1>
+    </header>
+    
+    <div class="selector-box">
+        <label for="chapter-select">Active Chapter Diagnostics:</label>
+        <select id="chapter-select" onchange="loadAnalytics()">
+            <option value="">-- Select Chapter to Populate Analytics --</option>
+            <option value="1_Kings_1">Chapter 1: 1 Kings 1</option>
+            <option value="1_Kings_2">Chapter 2: 1 Kings 2</option>
+        </select>
+    </div>
+
+    <div class="grid">
+        <div class="panel" id="student-panel">
+            <h3 class="panel-title">👥 Student Performance Roster</h3>
+            <p class="panel-subtitle">Select a specific student below to view their exam submission file line-by-line.</p>
+            <div id="roster-list">
+                <div class="empty-state">Select a chapter above to pull classroom data tracks.</div>
+            </div>
+        </div>
+
+        <div class="panel" id="stats-panel">
+            <h3 class="panel-title">📊 Common Mistakes (Item Analysis)</h3>
+            <p class="panel-subtitle">Quiz questions sorted dynamically by the highest mistake threshold across the class.</p>
+            <div id="mistakes-list">
+                <div class="empty-state">Select a chapter above to run item statistics.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 🛡️ Pre-linked straight to your custom South East Asia server URL
+    const databaseURL = "https://kingdomquiz-7b4bf-default-rtdb.asia-southeast1.firebasedatabase.app"; 
+    let classroomData = {};
+    let activeChapter = "";
+
+    function loadAnalytics() {
+        activeChapter = document.getElementById("chapter-select").value;
+        if (!activeChapter) {
+            document.getElementById("roster-list").innerHTML = '<div class="empty-state">Select a chapter above to pull classroom data tracks.</div>';
+            document.getElementById("mistakes-list").innerHTML = '<div class="empty-state">Select a chapter above to run item statistics.</div>';
+            return;
+        }
+
+        // Pull down student metrics arrays from the scores node
+        fetch(`${databaseURL}/scores.json`)
+            .then(res => res.json())
+            .then(data => {
+                classroomData = data || {};
+                processData(activeChapter);
+            })
+            .catch(err => {
+                console.error("Database Fetch Error:", err);
+                document.getElementById("roster-list").innerHTML = '<div class="empty-state" style="color:red;">Error connecting to Firebase Database. Check web connection!</div>';
+            });
+    }
+
+    function processData(chapter) {
+        const rosterList = document.getElementById("roster-list");
+        const mistakesList = document.getElementById("mistakes-list");
+        
+        rosterList.innerHTML = "";
+        mistakesList.innerHTML = "";
+
+        let studentCount = 0;
+        let questionStats = {}; 
+
+        // Scan the submissions records
+        for (let studentId in classroomData) {
+            let record = classroomData[studentId];
+            if (record.chapter === chapter) {
+                studentCount++;
+                
+                // 1. Append Student to Navigation Roster
+                let row = document.createElement("div");
+                row.className = "student-row";
+                row.innerHTML = `<span>⚔️ <strong>${record.name}</strong></span> <span class="badge">${record.score} Pts</span>`;
+                row.onclick = () => showIndividualReport(record);
+                rosterList.appendChild(row);
+
+                // 2. Parse Question Metrics Index
+                if (record.breakdown) { 
+                    record.breakdown.forEach((item, index) => {
+                        if (!questionStats[index]) {
+                            questionStats[index] = { question: item.question, wrongCount: 0, total: 0 };
+                        }
+                        questionStats[index].total++;
+                        if (!item.isCorrect) {
+                            questionStats[index].wrongCount++;
+                        }
+                    });
+                }
+            }
+        }
+
+        if (studentCount === 0) {
+            rosterList.innerHTML = "<div class='empty-state'>No student submission data found under this chapter path yet.</div>";
+            mistakesList.innerHTML = "<div class='empty-
