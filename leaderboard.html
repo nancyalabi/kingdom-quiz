@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>👑 Master Live Dashboard 👑</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #011627; color: white; text-align: center; padding: 40px; }
+        h1 { font-size: 3rem; color: #FF9F1C; text-shadow: 3px 3px 0px #000; margin-bottom: 5px; }
+        .control-select { padding: 12px 25px; font-size: 1.2rem; border-radius: 15px; border: 3px solid #2EC4B6; background: #0b253a; color: white; font-weight: bold; margin-top: 15px; cursor: pointer; }
+        .leaderboard-box { background: #0b253a; border-radius: 25px; max-width: 600px; margin: 30px auto; padding: 30px; border: 4px solid #2EC4B6; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+        .row { display: flex; justify-content: space-between; align-items: center; background: #133954; padding: 15px 25px; margin-bottom: 12px; border-radius: 15px; font-size: 1.4rem; font-weight: bold; border-left: 8px solid #FF9F1C; transition: all 0.3s; }
+        .row:nth-child(1) { background: #FF9F1C; color: #011627; border-left: 8px solid #FFF; transform: scale(1.03); }
+        .row:nth-child(2) { border-left-color: #C0C0C0; }
+        .row:nth-child(3) { border-left-color: #CD7F32; }
+        .score-badge { background: #2EC4B6; padding: 5px 15px; border-radius: 10px; color: #011627; }
+        .row:nth-child(1) .score-badge { background: #011627; color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>👑 Kingdom Live Dashboard 👑</h1>
+    <p style="font-size:1.2rem; color:#2EC4B6; margin:0;">Select Active Revision Board to Display:</p>
+    
+    <select id="teacher-chapter-view" class="control-select" onchange="updateLeaderboard()">
+        <option value="">Loading tracks...</option>
+    </select>
+
+    <div class="leaderboard-box" id="leaderboard-target">
+        <div style="font-size:1.2rem; padding:20px; color:#aaa;">Loading scores...</div>
+    </div>
+
+<script>
+    const databaseURL = "https://kingdomquiz-7b4bf-default-rtdb.asia-southeast1.firebasedatabase.app";
+
+    function initializeDashboard() {
+        fetch(`${databaseURL}/questions.json`)
+        .then(res => res.json())
+        .then(data => {
+            const selector = document.getElementById("teacher-chapter-view");
+            selector.innerHTML = "";
+            for(let key in data) {
+                const opt = document.createElement("option");
+                opt.value = key; opt.innerText = "Chapter: " + key;
+                selector.appendChild(opt);
+            }
+            updateLeaderboard();
+        });
+    }
+
+    function updateLeaderboard() {
+        const targetChapter = document.getElementById("teacher-chapter-view").value;
+        if(!targetChapter) return;
+        
+        fetch(`${databaseURL}/leaderboard/${targetChapter}.json`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById("leaderboard-target");
+            if(!data) {
+                container.innerHTML = `<div style="font-size:1.2rem; padding:20px; color:#aaa;">No scores logged yet for ${targetChapter}. Waiting for knights...</div>`;
+                return;
+            }
+            
+            let scoresArray = [];
+            for (let name in data) {
+                scoresArray.push({ name: name, score: data[name].score });
+            }
+            
+            scoresArray.sort((a, b) => b.score - a.score);
+            container.innerHTML = "";
+            
+            scoresArray.forEach((player, index) => {
+                let medal = "";
+                if(index === 0) medal = "🥇 ";
+                else if(index === 1) medal = "🥈 ";
+                else if(index === 2) medal = "🥉 ";
+                
+                const row = document.createElement("div");
+                row.classList.add("row");
+                row.innerHTML = `<span>${medal}${index + 1}. ${player.name}</span> <span class="score-badge">${player.score} Pts</span>`;
+                container.appendChild(row);
+            });
+        })
+        .catch(err => console.error("Sync error:", err));
+    }
+
+    setInterval(updateLeaderboard, 2000);
+    window.onload = initializeDashboard;
+</script>
+</body>
+</html>

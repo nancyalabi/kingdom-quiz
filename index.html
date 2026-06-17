@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Crown Race: Kingdom Arena</title>
+    <style>
+        :root {
+            --primary: #FF9F1C; --secondary: #2EC4B6; --success: #2ECC71; --error: #FF4D4D; --dark: #011627; --card-bg: #FFFFFF;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif; background: linear-gradient(135deg, #64B5F6 0%, #1565C0 100%);
+            margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: var(--dark);
+        }
+        .quiz-container {
+            background: var(--card-bg); padding: 35px; border-radius: 30px; box-shadow: 0 20px 0px rgba(0, 0, 0, 0.15);
+            width: 100%; max-width: 650px; text-align: center; border: 4px solid var(--dark);
+        }
+        h1 { color: var(--primary); text-shadow: 2px 2px 0px var(--dark); margin-top: 0; }
+        .progress-bar-container { background: #E0E0E0; border-radius: 20px; height: 15px; margin-bottom: 25px; overflow: hidden; border: 2px solid var(--dark); }
+        .progress-bar { background: var(--secondary); height: 100%; width: 0%; transition: width 0.4s ease; }
+        .question { font-size: 1.3rem; line-height: 1.5; margin-bottom: 25px; font-weight: bold; text-align: left; }
+        .options-list { display: flex; flex-direction: column; gap: 15px; }
+        .option-btn {
+            background: #FFF; border: 3px solid var(--dark); padding: 16px 20px; border-radius: 20px; text-align: left;
+            font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0px var(--dark); position: relative;
+        }
+        .option-btn:hover { background: #FFF9E6; }
+        .correct { background-color: var(--success) !important; color: white !important; box-shadow: 0 6px 0px #1E8449 !important; }
+        .incorrect { background-color: var(--error) !important; color: white !important; box-shadow: 0 6px 0px #B03A2E !important; }
+        .rationale-box { margin-top: 20px; padding: 15px; background: #F0F4F8; border-radius: 15px; border: 2px dashed var(--secondary); font-size: 1rem; display: none; text-align: left; }
+        .footer { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .action-btn { background: var(--primary); color: white; border: 3px solid var(--dark); padding: 12px 28px; border-radius: 20px; cursor: pointer; font-weight: bold; box-shadow: 0 6px 0px var(--dark); }
+        .select-input { width: 85%; padding: 15px; font-size: 1.2rem; border-radius: 15px; border: 3px solid var(--dark); margin-bottom: 20px; font-weight: bold; background: #FFF; text-align: center; }
+        #login-box { display: block; }
+        #quiz-box, #result-box { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="login-box">
+        <h1>👑 Kingdom Quest Arena 👑</h1>
+        <p style="font-size:1.2rem; font-weight:bold;">Enter Knight Name:</p>
+        <input type="text" id="student-name" class="select-input" placeholder="e.g., KnightAlex" maxlength="15">
+        
+        <p style="font-size:1.2rem; font-weight:bold;">Select Chapter Quest:</p>
+        <select id="chapter-select" class="select-input">
+            <option value="">Loading live chapters...</option>
+        </select>
+        <br><br>
+        <button class="action-btn" onclick="startAdventure()">Start Revision ➔</button>
+    </div>
+
+    <div id="quiz-box">
+        <h1 id="game-title-tag">⚔️ Arena ⚔️</h1>
+        <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
+        <div class="question" id="question-text">Loading quest...</div>
+        <div class="options-list" id="options-container"></div>
+        <div class="rationale-box" id="rationale-container"></div>
+        <div class="footer">
+            <span style="font-weight:bold;" id="progress-text">Question 1</span>
+            <button class="action-btn" id="next-btn" style="display:none;" onclick="nextQuestion()">Next ➔</button>
+        </div>
+    </div>
+
+    <div id="result-box">
+        <h1>🎉 Quest Completed! 🎉</h1>
+        <h2>Your Revision Score: <span id="final-score" style="color:var(--secondary);">0</span></h2>
+        <p style="font-size:1.1rem; font-weight:bold;">Excellent practicing! Check the dashboard projector to see your spot on the live leaderboard.</p>
+        <button class="action-btn" onclick="location.reload()">Back to Main Menu 🔄</button>
+    </div>
+</div>
+
+<script>
+    let quizData = [];
+    let currentQuestionIndex = 0, score = 0, answered = false;
+    let studentName = "", selectedChapter = "";
+    
+    const databaseURL = "https://kingdomquiz-7b4bf-default-rtdb.asia-southeast1.firebasedatabase.app"; 
+
+    // Fetch chapters automatically from Firebase when the page turns on
+    function loadChaptersFromDatabase() {
+        fetch(`${databaseURL}/questions.json`)
+        .then(res => res.json())
+        .then(data => {
+            const selector = document.getElementById("chapter-select");
+            selector.innerHTML = ""; // Clear loader
+            
+            if(!data) {
+                selector.innerHTML = "<option>No chapters uploaded yet</option>";
+                return;
+            }
+            
+            // Generate standard drop menu options dynamically based on your folders
+            for(let chapterKey in data) {
+                const opt = document.createElement("option");
+                opt.value = chapterKey;
+                opt.innerText = `Chapter: ${chapterKey}`;
+                selector.appendChild(opt);
+            }
+        });
+    }
+
+    function startAdventure() {
+        const nameInput = document.getElementById("student-name").value.trim();
+        selectedChapter = document.getElementById("chapter-select").value;
+        if(!nameInput) return alert("Please type your Knight name!");
+        if(!selectedChapter) return alert("Please wait for chapters to load!");
+        
+        studentName = nameInput.replace(/[.#$\[\]]/g, ""); 
+        
+        // Grab the precise question package out from database cloud storage
+        fetch(`${databaseURL}/questions/${selectedChapter}.json`)
+        .then(res => res.json())
+        .then(data => {
+            if(!data) return alert("Error: Could not download data for this selection.");
+            quizData = data;
+            
+            document.getElementById("login-box").style.display = "none";
+            document.getElementById("quiz-box").style.display = "block";
+            document.getElementById("game-title-tag").innerText = "🛡️ " + selectedChapter;
+            
+            saveScoreToFirebase();
+            loadQuestion();
+        });
+    }
+
+    function loadQuestion() {
+        answered = false; 
+        document.getElementById("next-btn").style.display = "none"; 
+        document.getElementById("rationale-container").style.display = "none";
+        
+        const currentData = quizData[currentQuestionIndex];
+        document.getElementById("question-text").innerText = (currentQuestionIndex + 1) + ". " + currentData.question;
+        document.getElementById("progress-text").innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+        document.getElementById("progress-bar").style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+        
+        const container = document.getElementById("options-container"); 
+        container.innerHTML = "";
+        
+        currentData.options.forEach((opt, idx) => {
+            const btn = document.createElement("button"); 
+            btn.classList.add("option-btn"); 
+            btn.innerText = opt;
+            btn.onclick = () => { if(!answered) selectOption(btn, idx); };
+            container.appendChild(btn);
+        });
+    }
+
+    function selectOption(btn, idx) {
+        answered = true;
+        const correctIdx = quizData[currentQuestionIndex].correct;
+        const rationaleBox = document.getElementById("rationale-container");
+        
+        if(idx === correctIdx) { 
+            btn.classList.add("correct"); 
+            score++; 
+            saveScoreToFirebase(); 
+            rationaleBox.innerHTML = "<strong>🌟 Correct!</strong> " + quizData[currentQuestionIndex].rationale;
+        } else { 
+            btn.classList.add("incorrect"); 
+            document.querySelectorAll(".option-btn")[correctIdx].classList.add("correct"); 
+            rationaleBox.innerHTML = "<strong>🔍 Answer Explained:</strong> " + quizData[currentQuestionIndex].rationale;
+        }
+        rationaleBox.style.display = "block";
+        document.getElementById("next-btn").style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if(currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            document.getElementById("quiz-box").style.display = "none";
+            document.getElementById("result-box").style.display = "block";
+            document.getElementById("final-score").innerText = score + " / " + quizData.length;
+        }
+    }
+
+    function saveScoreToFirebase() {
+        fetch(`${databaseURL}/leaderboard/${selectedChapter}/${studentName}.json`, {
+            method: "PUT",
+            body: JSON.stringify({ score: score, timestamp: Date.now() })
+        });
+    }
+
+    window.onload = loadChaptersFromDatabase;
+</script>
+</body>
+</html>
