@@ -112,7 +112,6 @@
             margin-bottom: 20px;
         }
 
-        /* Student Roster Styles */
         .student-row { 
             padding: 12px 15px; 
             border-bottom: 1px solid #f0f0f0; 
@@ -139,7 +138,6 @@
             font-weight: bold; 
         }
 
-        /* Stats Component Styles */
         .mistake-item { 
             padding: 15px; 
             margin-bottom: 15px; 
@@ -157,7 +155,6 @@
             display: block;
         }
 
-        /* Individual Submission Review Styles */
         .report-header { 
             background: var(--primary); 
             color: white; 
@@ -230,8 +227,8 @@
         <label for="chapter-select">Active Chapter Diagnostics:</label>
         <select id="chapter-select" onchange="loadAnalytics()">
             <option value="">-- Select Chapter to Populate Analytics --</option>
-            <option value="1_Kings_1">Chapter 1: 1 Kings 1</option>
-            <option value="1_Kings_2">Chapter 2: 1 Kings 2</option>
+            <option value="1 Kings 1">Chapter 1: 1 Kings 1</option>
+            <option value="1 Kings 2">Chapter 2: 1 Kings 2</option>
         </select>
     </div>
 
@@ -255,7 +252,6 @@
 </div>
 
 <script>
-    // 🛡️ Pre-linked straight to your custom South East Asia server URL
     const databaseURL = "https://kingdomquiz-7b4bf-default-rtdb.asia-southeast1.firebasedatabase.app"; 
     let classroomData = {};
     let activeChapter = "";
@@ -268,7 +264,6 @@
             return;
         }
 
-        // Pull down student metrics arrays from the scores node
         fetch(`${databaseURL}/scores.json`)
             .then(res => res.json())
             .then(data => {
@@ -289,23 +284,26 @@
         mistakesList.innerHTML = "";
 
         let studentCount = 0;
+        let detailedSubmissionsCount = 0;
         let questionStats = {}; 
 
-        // Scan the submissions records
         for (let studentId in classroomData) {
             let record = classroomData[studentId];
+            
+            // Bulletproof checking logic that compares spaces or structural strings cleanly
             if (record.chapter === chapter) {
                 studentCount++;
                 
                 // 1. Append Student to Navigation Roster
                 let row = document.createElement("div");
                 row.className = "student-row";
-                row.innerHTML = `<span>⚔️ <strong>${record.name}</strong></span> <span class="badge">${record.score} Pts</span>`;
+                row.innerHTML = `<span>⚔️ <strong>${record.name || 'Anonymous Knight'}</strong></span> <span class="badge">${record.score} Pts</span>`;
                 row.onclick = () => showIndividualReport(record);
                 rosterList.appendChild(row);
 
-                // 2. Parse Question Metrics Index
+                // 2. Parse Question Metrics Index if breakdown data exists
                 if (record.breakdown) { 
+                    detailedSubmissionsCount++;
                     record.breakdown.forEach((item, index) => {
                         if (!questionStats[index]) {
                             questionStats[index] = { question: item.question, wrongCount: 0, total: 0 };
@@ -320,5 +318,74 @@
         }
 
         if (studentCount === 0) {
-            rosterList.innerHTML = "<div class='empty-state'>No student submission data found under this chapter path yet.</div>";
-            mistakesList.innerHTML = "<div class='empty-
+            rosterList.innerHTML = "<div class='empty-state'>No student submission data found matching this chapter format yet.</div>";
+            mistakesList.innerHTML = "<div class='empty-state'>No mistake analytics data available.</div>";
+            return;
+        }
+
+        // Show a smart fallback message if they are using older quiz data that lacked item traces
+        if (detailedSubmissionsCount === 0) {
+            mistakesList.innerHTML = "<div class='empty-state' style='padding: 20px; color:#7f8c8d;'>Scores found! However, these entries only recorded point totals. Real-time item analysis will generate as soon as submissions are made using your updated quiz code!</div>";
+            return;
+        }
+
+        // 3. Compile and Rank Mistakes Sorted descending (highest failure threshold first)
+        let statsArray = Object.values(questionStats).filter(q => q.wrongCount > 0);
+        statsArray.sort((a, b) => b.wrongCount - a.wrongCount);
+
+        if (statsArray.length === 0) {
+            mistakesList.innerHTML = "<div class='empty-state' style='color:green; font-weight:bold;'>🎉 Perfect Scores! Your entire class cleared every question correctly!</div>";
+            return;
+        }
+
+        statsArray.forEach(q => {
+            let pct = Math.round((q.wrongCount / q.total) * 100);
+            let item = document.createElement("div");
+            item.className = "mistake-item";
+            item.innerHTML = `
+                <span class="mistake-percentage">⚠️ Missed by ${pct}% of your class</span>
+                <span style="font-size: 13px; color: #7f8c8d; font-weight:bold;">Metrics: ${q.wrongCount} out of ${q.total} Knights failed this statement</span><br>
+                <p style="margin: 8px 0 0 0; font-size:14px; font-weight: 500; color:#2c3e50;">${q.question}</p>
+            `;
+            mistakesList.appendChild(item);
+        });
+    }
+
+    function showIndividualReport(record) {
+        let rosterPanel = document.getElementById("student-panel");
+        let html = `
+            <div class="report-header">
+                <button class="back-btn" onclick="backToRoster()">⬅ Back to List</button>
+                <h3 style="margin: 10px 0 5px 0;">📋 Paper Review: ${record.name || 'Student'}</h3>
+                <span style="font-size:13px; opacity:0.9;">Performance Track Score: <strong>${record.score} Points</strong></span>
+            </div>
+        `;
+
+        if (record.breakdown) {
+            record.breakdown.forEach((item, idx) => {
+                html += `
+                    <div class="question-review">
+                        <span class="question-text">Q${idx + 1}: ${item.question}</span>
+                        <div>
+                            <span class="status-indicator ${item.isCorrect ? 'correct' : 'wrong'}">
+                                ${item.isCorrect ? '✅ Correct' : '❌ Incorrect'}
+                            </span>
+                            <span class="answer-detail">Selected: <em>"${item.selectedOption || 'N/A'}"</em></span>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            html += "<div class='empty-state' style='margin-top:40px;'>This structural entry only possesses total point metrics without a response breakdown. Detailed logs will appear for future quiz completions!</div>";
+        }
+
+        rosterPanel.innerHTML = html;
+    }
+
+    function backToRoster() {
+        processData(activeChapter);
+    }
+</script>
+
+</body>
+</html>
