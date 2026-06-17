@@ -98,8 +98,10 @@
         <div class="input-group">
             <label for="chapter-select">Choose Chapter Target:</label>
             <select id="chapter-select">
-                <option value="1 Kings 1">Chapter 1: 1 Kings 1</option>
-                <option value="1 Kings 2">Chapter 2: 1 Kings 2</option>
+                <option value="chapter 1.json">Chapter 1: 1 Kings 1</option>
+                <option value="chapter 2.json">Chapter 2: 1 Kings 2</option>
+                <option value="chapter 3.json">Chapter 3: Upcoming Week</option>
+                <option value="chapter 4.json">Chapter 4: Upcoming Week</option>
             </select>
         </div>
         <button class="btn-primary" onclick="startQuiz()">Begin the Trial ⚔️</button>
@@ -120,69 +122,10 @@
 </div>
 
 <script>
-    // Link to your exact Southeast Asia Firebase Instance
     const databaseURL = "https://kingdomquiz-7b4bf-default-rtdb.asia-southeast1.firebasedatabase.app";
     
-    // 🌟 FULL BUILT-IN QUESTION BANK (Bypasses Firebase reading errors entirely)
-    const quizBank = {
-        "1 Kings 1": [
-            {
-                question: "Who conspired to exalt himself saying 'I will be king' when David was old?",
-                options: ["Solomon", "Adonijah", "Absalom", "Amnon"],
-                correct: 1
-            },
-            {
-                question: "Which priest sided with Adonijah during his rebellion?",
-                options: ["Zadok", "Nathan", "Abiathar", "Benaiah"],
-                correct: 2
-            },
-            {
-                question: "Who went to King David to inform him about Adonijah's unauthorized coronation feast first?",
-                options: ["Bathsheba", "Abishag", "Solomon", "Joab"],
-                correct: 0
-            },
-            {
-                question: "Which prophet helped arrange for Solomon to be anointed king quickly?",
-                options: ["Elijah", "Nathan", "Samuel", "Elisha"],
-                correct: 1
-            },
-            {
-                question: "Where did Solomon ride upon David's own mule to be anointed?",
-                options: ["Gihon", "Hebron", "Jericho", "Damascus"],
-                correct: 0
-            }
-        ],
-        "1 Kings 2": [
-            {
-                question: "What primary instruction did David give Solomon before he passed away?",
-                options: ["Build the palace larger", "Walk in the ways of the Lord and keep His statutes", "Collect more gold", "Make alliances with Egypt"],
-                correct: 1
-            },
-            {
-                question: "Which military commander did David tell Solomon to punish for innocent blood shed?",
-                options: ["Benaiah", "Joab", "Abner", "Amasa"],
-                correct: 1
-            },
-            {
-                question: "Who was executed after making an unauthorized request to marry Abishag?",
-                options: ["Adonijah", "Abiathar", "Shimei", "Hiram"],
-                correct: 0
-            },
-            {
-                question: "Where did Joab run to seek asylum before he was executed?",
-                options: ["The city of Hebron", "The tent of the Lord, catching hold of the altar horns", "The land of Moab", "The palace roof"],
-                correct: 1
-            },
-            {
-                question: "Who was placed over the army in Joab's position?",
-                options: ["Zadok", "Benaiah", "Shimei", "Nathan"],
-                correct: 1
-            }
-        ]
-    };
-
     let studentName = "";
-    let selectedChapter = "";
+    let selectedFile = "";
     let loadedQuestions = [];
     let currentIdx = 0;
     let score = 0;
@@ -190,27 +133,35 @@
 
     function startQuiz() {
         studentName = document.getElementById("student-name").value.trim();
-        selectedChapter = document.getElementById("chapter-select").value;
+        selectedFile = document.getElementById("chapter-select").value;
 
         if (!studentName) {
             alert("Please enter your noble name to begin!");
             return;
         }
 
-        loadedQuestions = quizBank[selectedChapter] || [];
-
-        if (loadedQuestions.length === 0) {
-            alert("Error loading questions for this path.");
-            return;
-        }
-
-        currentIdx = 0;
-        score = 0;
-        studentAnswersLog = [];
-        
-        document.getElementById("login-screen").style.display = "none";
-        document.getElementById("quiz-screen").style.display = "block";
-        showQuestion();
+        // 🌟 FETCHES DYNAMICALLY FROM YOUR GITHUB REPOSITORY DIRECTORY ROOT
+        fetch(selectedFile)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`File ${selectedFile} not found in repository repository yet.`);
+                }
+                return res.json();
+            })
+            .then(questions => {
+                loadedQuestions = questions;
+                currentIdx = 0;
+                score = 0;
+                studentAnswersLog = [];
+                
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("quiz-screen").style.display = "block";
+                showQuestion();
+            })
+            .catch(err => {
+                console.error(err);
+                alert(`⚠️ Error loading quiz data: Make sure "${selectedFile}" is uploaded to your main GitHub folder exactly!`);
+            });
     }
 
     function showQuestion() {
@@ -242,7 +193,6 @@
             score += 10; 
         }
 
-        // Packages choice logs perfectly for your dashboard analysis metrics
         studentAnswersLog.push({
             question: questionObj.question,
             selectedOption: chosenText,
@@ -258,14 +208,16 @@
         document.getElementById("result-screen").style.display = "block";
         document.getElementById("final-score-display").innerText = `${score} Pts`;
 
+        // Clear out the ".json" extension to clean up names for the Firebase records tree
+        let chapterCleanName = selectedFile.replace(".json", ""); 
+
         const payload = {
             name: studentName,
             score: score,
-            chapter: selectedChapter,
+            chapter: chapterCleanName, // saves as "chapter 1", "chapter 2", etc.
             breakdown: studentAnswersLog
         };
 
-        // Pushes score logs up into your database scores history book
         fetch(`${databaseURL}/scores.json`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
