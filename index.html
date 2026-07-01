@@ -6,20 +6,42 @@
     <title>The Crown Race: Kingdom Hub</title>
     <style>
         :root {
-            --primary: #FF9F1C; --secondary: #2EC4B6; --success: #2ECC71; --error: #FF4D4D; --dark: #011627; --card-bg: #FFFFFF;
+            --primary: #FF9F1C; 
+            --secondary: #2EC4B6; 
+            --success: #2ECC71; 
+            --error: #FF4D4D; 
+            --dark: #011627; 
+            --card-bg: #FFFFFF;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif; background: linear-gradient(135deg, #64B5F6 0%, #1565C0 100%);
-            margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: var(--dark);
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: linear-gradient(135deg, #64B5F6 0%, #1565C0 100%);
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            color: var(--dark);
         }
         .quiz-container {
-            background: var(--card-bg); padding: 35px; border-radius: 30px; box-shadow: 0 20px 0px rgba(0, 0, 0, 0.15);
-            width: 100%; max-width: 650px; text-align: center; border: 4px solid var(--dark);
+            background: var(--card-bg); 
+            padding: 35px; 
+            border-radius: 30px; 
+            box-shadow: 0 20px 0px rgba(0, 0, 0, 0.15);
+            width: 100%; 
+            max-width: 650px; 
+            text-align: center; 
+            border: 4px solid var(--dark);
         }
         h1 { color: var(--primary); text-shadow: 2px 2px 0px var(--dark); margin-top: 0; }
         h2 { color: var(--secondary); text-shadow: 1px 1px 0px var(--dark); }
+        
+        /* Progress Bar */
         .progress-bar-container { background: #E0E0E0; border-radius: 20px; height: 15px; margin-bottom: 25px; overflow: hidden; border: 2px solid var(--dark); }
         .progress-bar { background: var(--secondary); height: 100%; width: 0%; transition: width 0.4s ease; }
+        
+        /* Quiz Elements */
         .question { font-size: 1.3rem; line-height: 1.5; margin-bottom: 25px; font-weight: bold; text-align: left; }
         .options-list { display: flex; flex-direction: column; gap: 15px; }
         .option-btn {
@@ -31,20 +53,22 @@
         .incorrect { background-color: var(--error) !important; color: white !important; box-shadow: 0 6px 0px #B03A2E !important; }
         .rationale-box { margin-top: 20px; padding: 15px; background: #F0F4F8; border-radius: 15px; border: 2px dashed var(--secondary); font-size: 1rem; display: none; text-align: left; }
         .footer { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Buttons & Inputs */
         .action-btn { background: var(--primary); color: white; border: 3px solid var(--dark); padding: 12px 28px; border-radius: 20px; cursor: pointer; font-weight: bold; box-shadow: 0 6px 0px var(--dark); }
         .action-btn:hover { background: #e58f13; }
-        .secondary-btn { background: var(--secondary); }
+        .secondary-btn { background: var(--secondary); box-shadow: 0 6px 0px var(--dark); }
         .secondary-btn:hover { background: #25a195; }
         .select-input { width: 85%; padding: 15px; font-size: 1.2rem; border-radius: 15px; border: 3px solid var(--dark); margin-bottom: 20px; font-weight: bold; background: #FFF; text-align: center; }
         
-        /* New Grid Layout for Portal Menu */
+        /* Main Hub Portal CSS Grid Layout */
         .portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px; }
         .portal-card { background: #F8F9FA; border: 3px solid var(--dark); border-radius: 20px; padding: 20px; cursor: pointer; box-shadow: 0 6px 0px var(--dark); transition: transform 0.2s; }
         .portal-card:hover { transform: translateY(-3px); background: #FFF9E6; }
         .portal-card h3 { margin: 10px 0 0 0; color: var(--dark); }
         .portal-card span { font-size: 2.5rem; }
 
-        /* View Switching Rules */
+        /* View-Switching SPA Engine Architecture */
         .view-section { display: none; }
         #portal-home { display: block; }
     </style>
@@ -55,7 +79,7 @@
 
     <div id="portal-home" class="view-section">
         <h1>👑 Kingdom Hub 👑</h1>
-        <p style="font-size:1.1rem; font-weight:bold;">Welcome, Traveler! Choose your destination:</p>
+        <p style="font-size:1.1rem; font-weight:bold;">Welcome, Valiant Traveler! Choose your destination:</p>
         
         <div class="portal-grid">
             <div class="portal-card" onclick="switchView('login-box')">
@@ -87,7 +111,7 @@
             <option value="">Loading live chapters...</option>
         </select>
         <br><br>
-        <button class="action-btn secondary-btn" onclick="switchView('portal-home')">⬅ Back</button>
+        <button class="action-btn secondary-btn" onclick="switchView('portal-home')">⬅ Back to Hub</button>
         <button class="action-btn" onclick="startAdventure()">Start Revision ➔</button>
     </div>
 
@@ -117,160 +141,12 @@
     let studentName = "", selectedChapter = "";
     let detailedReports = []; 
     
-    // Aligned to your Firebase structure root key 'quizzes'
+    // Aligned to your live database URL
     const databaseURL = "https://kingdomquiz-7b4bf-default-rtdb.asia-southeast1.firebasedatabase.app"; 
 
-    // SPA View Switcher Utility
+    // SPA Single Page Engine Switcher
     function switchView(viewId) {
         document.querySelectorAll('.view-section').forEach(section => {
             section.style.display = 'none';
         });
-        document.getElementById(viewId).style.display = 'block';
-    }
-
-    // Gatekeeper check for Teacher Dashboard redirection
-    function verifyTeacherAccess() {
-        // Simple password gatekeeper. Replace 'kingdomAdmin123' with your preferred code.
-        const entryCode = prompt("Enter the Teacher Guild Secret Code:");
-        if (entryCode === "kingdomAdmin123") {
-            window.location.href = "dashboard.html";
-        } else if (entryCode !== null) {
-            alert("🔒 Intruders halted! That code is invalid.");
-        }
-    }
-
-    function loadChaptersFromDatabase() {
-        // Pointed to /quizzes.json instead of /questions.json to match your requirements
-        fetch(`${databaseURL}/quizzes.json`)
-        .then(res => res.json())
-        .then(data => {
-            const selector = document.getElementById("chapter-select");
-            selector.innerHTML = ""; 
-            
-            if(!data) {
-                selector.innerHTML = "<option>No chapters uploaded yet</option>";
-                return;
-            }
-            
-            for(let chapterKey in data) {
-                const opt = document.createElement("option");
-                opt.value = chapterKey;
-                opt.innerText = `Chapter: ${chapterKey}`;
-                selector.appendChild(opt);
-            }
-        }).catch(err => {
-            console.error("Firebase connection error: ", err);
-        });
-    }
-
-    function startAdventure() {
-        const nameInput = document.getElementById("student-name").value.trim();
-        selectedChapter = document.getElementById("chapter-select").value;
-        if(!nameInput) return alert("Please type your Knight name!");
-        if(!selectedChapter) return alert("Please wait for chapters to load!");
-        
-        studentName = nameInput.replace(/[.#$\[\]]/g, ""); 
-        
-        // Fetch specific layout under /quizzes/
-        fetch(`${databaseURL}/quizzes/${selectedChapter}.json`)
-        .then(res => res.json())
-        .then(data => {
-            if(!data) return alert("Error: Could not download data for this selection.");
-            quizData = data;
-            detailedReports = []; 
-            currentQuestionIndex = 0;
-            score = 0;
-            
-            switchView('quiz-box');
-            document.getElementById("game-title-tag").innerText = "🛡️ " + selectedChapter;
-            
-            saveScoreToFirebase();
-            loadQuestion();
-        });
-    }
-
-    function loadQuestion() {
-        answered = false; 
-        document.getElementById("next-btn").style.display = "none"; 
-        document.getElementById("rationale-container").style.display = "none";
-        
-        const currentData = quizData[currentQuestionIndex];
-        document.getElementById("question-text").innerText = (currentQuestionIndex + 1) + ". " + currentData.question;
-        document.getElementById("progress-text").innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
-        document.getElementById("progress-bar").style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
-        
-        const container = document.getElementById("options-container"); 
-        container.innerHTML = "";
-        
-        currentData.options.forEach((opt, idx) => {
-            const btn = document.createElement("button"); 
-            btn.classList.add("option-btn"); 
-            btn.innerText = opt;
-            btn.onclick = () => { if(!answered) selectOption(btn, idx); };
-            container.appendChild(btn);
-        });
-    }
-
-    function selectOption(btn, idx) {
-        answered = true;
-        const currentQuestion = quizData[currentQuestionIndex];
-        const correctIdx = currentQuestion.correct;
-        const rationaleBox = document.getElementById("rationale-container");
-        const isCorrect = (idx === correctIdx);
-        
-        if(isCorrect) { 
-            btn.classList.add("correct"); 
-            score++; 
-            rationaleBox.innerHTML = "<strong>🌟 Correct!</strong> " + currentQuestion.rationale;
-        } else { 
-            btn.classList.add("incorrect"); 
-            document.querySelectorAll(".option-btn")[correctIdx].classList.add("correct"); 
-            rationaleBox.innerHTML = "<strong>🔍 Answer Explained:</strong> " + currentQuestion.rationale;
-        }
-
-        detailedReports.push({
-            questionNumber: currentQuestionIndex + 1,
-            questionText: currentQuestion.question,
-            studentAnswer: currentQuestion.options[idx],
-            correctAnswer: currentQuestion.options[correctIdx],
-            isCorrect: isCorrect
-        });
-
-        saveScoreToFirebase(); 
-
-        rationaleBox.style.display = "block";
-        document.getElementById("next-btn").style.display = "block";
-    }
-
-    function nextQuestion() {
-        currentQuestionIndex++;
-        if(currentQuestionIndex < quizData.length) {
-            loadQuestion();
-        } else {
-            switchView('result-box');
-            document.getElementById("final-score").innerText = score + " / " + quizData.length;
-        }
-    }
-
-    function saveScoreToFirebase() {
-        fetch(`${databaseURL}/leaderboard/${selectedChapter}/${studentName}.json`, {
-            method: "PUT",
-            body: JSON.stringify({ score: score, timestamp: Date.now() })
-        });
-
-        fetch(`${databaseURL}/reports/${selectedChapter}/${studentName}.json`, {
-            method: "PUT",
-            body: JSON.stringify({
-                studentName: studentName,
-                score: score,
-                totalQuestions: quizData.length,
-                timestamp: Date.now(),
-                answersBreakdown: detailedReports
-            })
-        });
-    }
-
-    window.onload = loadChaptersFromDatabase;
-</script>
-</body>
-</html>
+        document.getElementById(viewId).style.display = '
