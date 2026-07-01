@@ -61,16 +61,16 @@
         .secondary-btn:hover { background: #25a195; }
         .select-input { width: 85%; padding: 15px; font-size: 1.2rem; border-radius: 15px; border: 3px solid var(--dark); margin-bottom: 20px; font-weight: bold; background: #FFF; text-align: center; }
         
-        /* Main Hub Portal CSS Grid Layout */
+        /* Main Hub Portal Grid Layout */
         .portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px; }
         .portal-card { background: #F8F9FA; border: 3px solid var(--dark); border-radius: 20px; padding: 20px; cursor: pointer; box-shadow: 0 6px 0px var(--dark); transition: transform 0.2s; }
         .portal-card:hover { transform: translateY(-3px); background: #FFF9E6; }
         .portal-card h3 { margin: 10px 0 0 0; color: var(--dark); }
         .portal-card span { font-size: 2.5rem; }
 
-        /* View-Switching SPA Engine Architecture */
-        .view-section { display: none; }
-        #portal-home { display: block; }
+        /* SPA Engine Core Layout Rules */
+        .view-section { display: none !important; }
+        #portal-home { display: block !important; }
     </style>
 </head>
 <body>
@@ -147,6 +147,187 @@
     // SPA Single Page Engine Switcher
     function switchView(viewId) {
         document.querySelectorAll('.view-section').forEach(section => {
-            section.style.display = 'none';
+            section.style.setProperty('display', 'none', 'important');
         });
-        document.getElementById(viewId).style.display = '
+        const targetSection = document.getElementById(viewId);
+        if (targetSection) {
+            targetSection.style.setProperty('display', 'block', 'important');
+        } else {
+            console.error(`Error: View section with ID "${viewId}" could not be found.`);
+        }
+    }
+
+    // Passcode lock to block students from going to dashboard.html
+    function verifyTeacherAccess() {
+        const entryCode = prompt("Enter the Teacher Guild Secret Code:");
+        if (entryCode === "kingdomAdmin123") {
+            window.location.href = "dashboard.html";
+        } else if (entryCode !== null) {
+            alert("🔒 Access Denied! That secret guild code is invalid.");
+        }
+    }
+
+    // Automatically fetch real chapters from your root /quizzes tree
+    function loadChaptersFromDatabase() {
+        const selector = document.getElementById("chapter-select");
+        if (!selector) return;
+
+        fetch(`${databaseURL}/quizzes.json`)
+        .then(res => res.json())
+        .then(data => {
+            selector.innerHTML = ""; 
+            
+            if(!data) {
+                selector.innerHTML = "<option value=''>No chapters uploaded yet</option>";
+                return;
+            }
+            
+            const defaultOpt = document.createElement("option");
+            defaultOpt.value = "";
+            defaultOpt.innerText = "-- Select a Quest --";
+            selector.appendChild(defaultOpt);
+            
+            for(let chapterKey in data) {
+                const opt = document.createElement("option");
+                opt.value = chapterKey;
+                opt.innerText = `Chapter: ${chapterKey}`;
+                selector.appendChild(opt);
+            }
+        }).catch(err => {
+            console.error("Firebase connection error: ", err);
+            selector.innerHTML = "<option value=''>Error loading quests from cloud</option>";
+        });
+    }
+
+    function startAdventure() {
+        const nameInput = document.getElementById("student-name").value.trim();
+        selectedChapter = document.getElementById("chapter-select").value;
+        if(!nameInput) return alert("Please type your Knight name!");
+        if(!selectedChapter) return alert("Please choose a valid chapter quest!");
+        
+        studentName = nameInput.replace(/[.#$\[\]]/g, ""); 
+        
+        fetch(`${databaseURL}/quizzes/${selectedChapter}.json`)
+        .then(res => res.json())
+        .then(data => {
+            if(!data) return alert("Error: Could not download data for this selection.");
+            
+            // Fixes double nested folder structures if they exist in your database
+            let cleanData = data;
+            if (data[selectedChapter]) {
+                cleanData = data[selectedChapter];
+            }
+            
+            // Safe Array Parsing Rule
+            if (!Array.isArray(cleanData)) {
+                quizData = Object.values(cleanData);
+            } else {
+                quizData = cleanData.filter(item => item !== null); 
+            }
+
+            if (quizData.length === 0) {
+                return alert("Error: No valid questions found inside this chapter node.");
+            }
+
+            detailedReports = []; 
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            switchView('quiz-box');
+            document.getElementById("game-title-tag").innerText = "🛡️ " + selectedChapter;
+            
+            saveScoreToFirebase();
+            loadQuestion();
+        })
+        .catch(err => {
+            console.error("Error starting chapter:", err);
+            alert("Quest launch failed. Please verify database format.");
+        });
+    }
+
+    function loadQuestion() {
+        answered = false; 
+        document.getElementById("next-btn").style.display = "none"; 
+        document.getElementById("rationale-container").style.display = "none";
+        
+        const currentData = quizData[currentQuestionIndex];
+        document.getElementById("question-text").innerText = (currentQuestionIndex + 1) + ". " + currentData.question;
+        document.getElementById("progress-text").innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+        document.getElementById("progress-bar").style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+        
+        const container = document.getElementById("options-container"); 
+        container.innerHTML = "";
+        
+        currentData.options.forEach((opt, idx) => {
+            const btn = document.createElement("button"); 
+            btn.classList.add("option-btn"); 
+            btn.innerText = opt;
+            btn.onclick = () => { if(!answered) selectOption(btn, idx); };
+            container.appendChild(btn);
+        });
+    }
+
+    function selectOption(btn, idx) {
+        answered = true;
+        const currentQuestion = quizData[currentQuestionIndex];
+        const correctIdx = currentQuestion.correct;
+        const rationaleBox = document.getElementById("rationale-container");
+        const isCorrect = (idx === correctIdx);
+        
+        if(isCorrect) { 
+            btn.classList.add("correct"); 
+            score++; 
+            rationaleBox.innerHTML = "<strong>🌟 Correct!</strong> " + currentQuestion.rationale;
+        } else { 
+            btn.classList.add("incorrect"); 
+            document.querySelectorAll(".option-btn")[correctIdx].classList.add("correct"); 
+            rationaleBox.innerHTML = "<strong>🔍 Answer Explained:</strong> " + currentQuestion.rationale;
+        }
+
+        detailedReports.push({
+            questionNumber: currentQuestionIndex + 1,
+            questionText: currentQuestion.question,
+            studentAnswer: currentQuestion.options[idx],
+            correctAnswer: currentQuestion.options[correctIdx],
+            isCorrect: isCorrect
+        });
+
+        saveScoreToFirebase(); 
+
+        rationaleBox.style.display = "block";
+        document.getElementById("next-btn").style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if(currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            switchView('result-box');
+            document.getElementById("final-score").innerText = score + " / " + quizData.length;
+        }
+    }
+
+    function saveScoreToFirebase() {
+        fetch(`${databaseURL}/leaderboard/${selectedChapter}/${studentName}.json`, {
+            method: "PUT",
+            body: JSON.stringify({ score: score, timestamp: Date.now() })
+        });
+
+        fetch(`${databaseURL}/reports/${selectedChapter}/${studentName}.json`, {
+            method: "PUT",
+            body: JSON.stringify({
+                studentName: studentName,
+                score: score,
+                totalQuestions: quizData.length,
+                timestamp: Date.now(),
+                answersBreakdown: detailedReports
+            })
+        });
+    }
+
+    // Start initialization when the DOM layout tree finishes preparing
+    document.addEventListener("DOMContentLoaded", loadChaptersFromDatabase);
+</script>
+</body>
+</html>
